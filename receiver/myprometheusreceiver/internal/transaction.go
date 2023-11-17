@@ -101,7 +101,6 @@ func (t *transaction) Append(_ storage.SeriesRef, ls labels.Labels, atMs int64, 
 		ls = append(ls, t.externalLabels...)
 		sort.Sort(ls)
 	}
-	ls = append(ls, labels.Label{Name: "http_code", Value: "200"}, labels.Label{Name: "error", Value: ""})
 	if t.isNew {
 		if err := t.initTransaction(ls); err != nil {
 			return 0, err
@@ -119,6 +118,9 @@ func (t *transaction) Append(_ storage.SeriesRef, ls labels.Labels, atMs int64, 
 	metricName := ls.Get(model.MetricNameLabel)
 	if metricName == "" {
 		return 0, errMetricNameNotFound
+	}
+	if metricName == scrapeUpMetricName {
+		ls = append(ls, labels.Label{Name: "http_code", Value: "200"}, labels.Label{Name: "error", Value: ""})
 	}
 
 	// See https://www.prometheus.io/docs/concepts/jobs_instances/#automatically-generated-labels-and-time-series
