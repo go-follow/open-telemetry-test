@@ -7,8 +7,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
 	"net/url"
 	"sort"
+	"strconv"
+	"strings"
 
 	"github.com/prometheus/common/model"
 	"github.com/prometheus/prometheus/model/exemplar"
@@ -174,14 +177,31 @@ func (t *transaction) Append(_ storage.SeriesRef, ls labels.Labels, atMs int64, 
 }
 
 func (t *transaction) parseError(err error) (string, string) {
-	switch t := err.(type) {
+	switch tt := err.(type) {
 	case nil:
 		return "200", ""
 	case *url.Error:
-		return "503", t.Err.Error()
+		return "503", tt.Err.Error()
 	default:
-		return "unknown", err.Error()
+		return t.parseHTTPCodeFromText(err.Error()), err.Error()
 	}
+}
+
+// TODO: тут нужно переделать под общую логику и попробовать распарсить ошибку
+func (t *transaction) parseHTTPCodeFromText(text string) string {
+	if strings.Contains(text, http.StatusText(http.StatusServiceUnavailable)) {
+		return strconv.Itoa(http.StatusServiceUnavailable)
+	}
+	if strings.Contains(text, http.StatusText(http.StatusNotFound)) {
+		return strconv.Itoa(http.StatusNotFound)
+	}
+	if strings.Contains(text, http.StatusText(http.StatusUnauthorized)) {
+		return strconv.Itoa(http.StatusUnauthorized)
+	}
+	if strings.Contains(text, http.StatusText(http.StatusForbidden)) {
+		return strconv.Itoa(http.StatusForbidden)
+	}
+	return "unknown"
 }
 
 func (t *transaction) getOrCreateMetricFamily(scope scopeID, mn string) *metricFamily {
