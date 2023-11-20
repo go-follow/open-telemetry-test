@@ -1,18 +1,12 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-package internal // import "github.com/open-telemetry/opentelemetry-collector-contrib/receiver/prometheusreceiver/internal"
+package internal
 
 import (
 	"context"
 	"errors"
 	"fmt"
-	"net/http"
-	"net/url"
-	"sort"
-	"strconv"
-	"strings"
-
 	"github.com/prometheus/common/model"
 	"github.com/prometheus/prometheus/model/exemplar"
 	"github.com/prometheus/prometheus/model/histogram"
@@ -28,6 +22,9 @@ import (
 	"go.opentelemetry.io/collector/receiver"
 	"go.opentelemetry.io/collector/receiver/receiverhelper"
 	"go.uber.org/zap"
+	"net"
+	"net/url"
+	"sort"
 )
 
 const (
@@ -123,7 +120,7 @@ func (t *transaction) Append(_ storage.SeriesRef, ls labels.Labels, atMs int64, 
 		return 0, errMetricNameNotFound
 	}
 	if metricName == scrapeUpMetricName {
-		ls = append(ls, labels.Label{Name: "http_code", Value: "200"}, labels.Label{Name: "error", Value: ""})
+		ls = append(ls, labels.Label{Name: "error_code", Value: "200"}, labels.Label{Name: "error_msg", Value: ""})
 	}
 
 	// See https://www.prometheus.io/docs/concepts/jobs_instances/#automatically-generated-labels-and-time-series
@@ -133,15 +130,8 @@ func (t *transaction) Append(_ storage.SeriesRef, ls labels.Labels, atMs int64, 
 		if val == 0.0 {
 			if t.scrapePrometheusErrCh != nil {
 				err := <-t.scrapePrometheusErrCh
-				httpCode, errMsg := t.parseError(err)
-				for i, l := range ls {
-					if l.Name == "http_code" {
-						ls[i].Value = httpCode
-					}
-					if l.Name == "error" {
-						ls[i].Value = errMsg
-					}
-				}
+				errCode := t.codeError(err)
+				ls = append(ls, labels.Label{Name: "error_code", Value: errCode}, labels.Label{Name: "error_msg", Value: err.Error()})
 			}
 
 			t.logger.Warn("Failed to scrape Prometheus endpoint",
@@ -176,32 +166,21 @@ func (t *transaction) Append(_ storage.SeriesRef, ls labels.Labels, atMs int64, 
 	return 0, nil // never return errors, as that fails the whole scrape
 }
 
-func (t *transaction) parseError(err error) (string, string) {
-	switch tt := err.(type) {
-	case nil:
-		return "200", ""
-	case *url.Error:
-		return "503", tt.Err.Error()
+func (t *transaction) codeError(err error) string {
+	const (
+		codeBodySizeLimit = "bodySizeLimit"
+		codeNetError      = "network"
+		codeGeneralError  = "general"
+	)
+	if err.Error() == "body size limit exceeded" {
+		return codeBodySizeLimit
+	}
+	switch err.(type) {
+	case *url.Error, net.Error:
+		return codeNetError
 	default:
-		return t.parseHTTPCodeFromText(err.Error()), err.Error()
+		return codeGeneralError
 	}
-}
-
-// TODO: тут нужно переделать под общую логику и попробовать распарсить ошибку
-func (t *transaction) parseHTTPCodeFromText(text string) string {
-	if strings.Contains(text, http.StatusText(http.StatusServiceUnavailable)) {
-		return strconv.Itoa(http.StatusServiceUnavailable)
-	}
-	if strings.Contains(text, http.StatusText(http.StatusNotFound)) {
-		return strconv.Itoa(http.StatusNotFound)
-	}
-	if strings.Contains(text, http.StatusText(http.StatusUnauthorized)) {
-		return strconv.Itoa(http.StatusUnauthorized)
-	}
-	if strings.Contains(text, http.StatusText(http.StatusForbidden)) {
-		return strconv.Itoa(http.StatusForbidden)
-	}
-	return "unknown"
 }
 
 func (t *transaction) getOrCreateMetricFamily(scope scopeID, mn string) *metricFamily {
