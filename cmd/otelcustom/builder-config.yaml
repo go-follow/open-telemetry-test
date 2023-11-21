@@ -4,7 +4,7 @@ dist:
   description: custom otel-collector
   output_path: ./cmd/otelcustom
   otelcol_version: 0.89.0
-  version: 0.0.7
+  version: 0.0.8
 #  go: /usr/local/go/bin/go
 
 exporters:
@@ -17,7 +17,7 @@ processors:
 receivers:
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/filelogreceiver v0.89.0
 #  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/prometheusreceiver v0.89.0
-  - gomod: github.com/go-follow/open-telemetry-test/receiver/myprometheusreceiver v0.0.6
+  - gomod: github.com/go-follow/open-telemetry-test/receiver/myprometheusreceiver v0.0.8
 
 replaces:
   - github.com/go-follow/open-telemetry-test/receiver/myprometheusreceiver => ../../receiver/myprometheusreceiver

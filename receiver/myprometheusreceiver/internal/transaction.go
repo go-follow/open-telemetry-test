@@ -119,9 +119,6 @@ func (t *transaction) Append(_ storage.SeriesRef, ls labels.Labels, atMs int64, 
 	if metricName == "" {
 		return 0, errMetricNameNotFound
 	}
-	if metricName == scrapeUpMetricName {
-		ls = append(ls, labels.Label{Name: "error_code", Value: ""}, labels.Label{Name: "error_msg", Value: ""})
-	}
 
 	// See https://www.prometheus.io/docs/concepts/jobs_instances/#automatically-generated-labels-and-time-series
 	// up: 1 if the instance is healthy, i.e. reachable, or 0 if the scrape failed.
