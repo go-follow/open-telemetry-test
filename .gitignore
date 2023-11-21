@@ -1,6 +1,8 @@
 local/
 vendor/
 
+cmd/otelcustom/otelcustom
+
 # GoLand IDEA
 /.idea/
 *.iml

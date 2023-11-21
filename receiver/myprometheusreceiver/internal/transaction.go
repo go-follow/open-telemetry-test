@@ -120,7 +120,7 @@ func (t *transaction) Append(_ storage.SeriesRef, ls labels.Labels, atMs int64, 
 		return 0, errMetricNameNotFound
 	}
 	if metricName == scrapeUpMetricName {
-		ls = append(ls, labels.Label{Name: "error_code", Value: "200"}, labels.Label{Name: "error_msg", Value: ""})
+		ls = append(ls, labels.Label{Name: "error_code", Value: ""}, labels.Label{Name: "error_msg", Value: ""})
 	}
 
 	// See https://www.prometheus.io/docs/concepts/jobs_instances/#automatically-generated-labels-and-time-series

@@ -2,9 +2,9 @@ dist:
   module: github.com/go-follow/open-telemetry-test/cmd/otelcustom
   name: otelcustom
   description: custom otel-collector
-  output_path: ./otel-custom
+  output_path: ./cmd/otelcustom
   otelcol_version: 0.89.0
-  version: 0.0.6
+  version: 0.0.7
 #  go: /usr/local/go/bin/go
 
 exporters:
