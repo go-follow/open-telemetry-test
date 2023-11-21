@@ -5,7 +5,7 @@ module github.com/go-follow/open-telemetry-test/cmd/otelcustom
 go 1.21.4
 
 require (
-	github.com/go-follow/open-telemetry-test/receiver/myprometheusreceiver v0.0.6
+	github.com/go-follow/open-telemetry-test/receiver/myprometheusreceiver v0.0.9
 	github.com/open-telemetry/opentelemetry-collector-contrib/exporter/prometheusremotewriteexporter v0.89.0
 	github.com/open-telemetry/opentelemetry-collector-contrib/processor/k8sattributesprocessor v0.89.0
 	github.com/open-telemetry/opentelemetry-collector-contrib/receiver/filelogreceiver v0.89.0

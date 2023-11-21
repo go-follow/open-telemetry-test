@@ -14,7 +14,7 @@ func main() {
 	info := component.BuildInfo{
 		Command:     "otelcustom",
 		Description: "custom otel-collector",
-		Version:     "0.0.6",
+		Version:     "0.0.9",
 	}
 
 	if err := run(otelcol.CollectorSettings{BuildInfo: info, Factories: components}); err != nil {

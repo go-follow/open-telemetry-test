@@ -1,6 +1,6 @@
 #include ./Makefile.Common
 SHELL := /bin/bash
-TAG = "v0.0.7"
+TAG = "v0.0.9"
 
 #lint:
 #	$(info ************ RUN LINTER ************)
@@ -8,7 +8,7 @@ TAG = "v0.0.7"
 
 generateComponents:
 	$(info ************ RUN GENERATE COMPONENTS with --skip compilation ************)
-	builder --skip-compilation --config=cmd/otelcustom/builder-config.yaml
+	builder --skip-compilation --config=builder-config.yaml
 
 build:
 	$(info ************ RUN build docker image ************)
