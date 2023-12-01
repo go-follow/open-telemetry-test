@@ -238,5 +238,3 @@ require (
 	sigs.k8s.io/structured-merge-diff/v4 v4.3.0 // indirect
 	sigs.k8s.io/yaml v1.3.0 // indirect
 )
-
-replace github.com/go-follow/open-telemetry-test/receiver/myprometheusreceiver => ../../receiver/myprometheusreceiver
