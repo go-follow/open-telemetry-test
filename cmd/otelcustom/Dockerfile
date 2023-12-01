@@ -3,12 +3,12 @@ RUN apk --update add ca-certificates
 
 RUN mkdir -p /tmp
 
-FROM scratch
+#FROM scratch
 
 ARG USER_UID=10001
 USER ${USER_UID}
 
-COPY --from=prep /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
+#COPY --from=prep /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY otelcustom /
 EXPOSE 4317 55680 55679
 ENTRYPOINT ["/otelcustom"]
